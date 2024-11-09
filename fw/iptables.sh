@@ -13,8 +13,8 @@ iptables -P OUTPUT ACCEPT
 # Permitir el tráfico entrante a través de la interfaz de loopback
 iptables -A INPUT -i lo -j ACCEPT
 
-# Permitir el tráfico entrante correspondiente a cualquier conexión previamente establecida.
-iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+# Permitir el tráfico entrante correspondiente a cualquier conexión previamente establecida. (T2)
+# iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
 # Permitir consultas entrantes de tipo ICMP ECHO REQUEST. (T2)
 # iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
@@ -31,18 +31,23 @@ iptables -A FORWARD -p tcp -i eth2 -o eth1 -s 10.5.2.0/24 -d 10.5.0.0/24 -m stat
 iptables -A FORWARD -p udp -i eth2 -o eth1 -s 10.5.2.0/24 -d 10.5.0.0/24 -m state --state NEW -j ACCEPT
 iptables -A FORWARD -p icmp -i eth2 -o eth1 -s 10.5.2.0/24 -d 10.5.0.0/24 -m state --state NEW -j ACCEPT
 
+# Permitir tráfico ICMP desde internal a dmz (no lo pide en la práctica)
+iptables -A FORWARD -p icmp -i eth2 -o eth0 -s 10.5.2.0/24 -d 10.5.1.0/24 -m state --state NEW -j ACCEPT
+
 # Todos los paquetes que abandonen fw por la interfaz externa y provengan de la red interna(10.5.2.0/24)
 # deben cambiar su ip de origen para que sea la del fw en esa interfaz(10.5.0.1)
 iptables -t nat -A POSTROUTING -o eth1 -s 10.5.2.0/24 -j SNAT --to 10.5.0.1 
 
-# Permitir el tráfico TCP desde cualquier máquina interna o externa a las máquinas dmz1 y dmz2 esclisivamente
-# al servicio HTTP
+# Acceso TCP desde cualquier máquina (interna o externa) a la máquina dmz1 (IP 10.5.1.20), exclusivamente al servicio HTTP (puerto 80).
 iptables -A FORWARD -p tcp -o eth0 -d 10.5.1.20 --dport 80 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A FORWARD -p tcp -o eth0 -d 10.5.1.21 --dport 80 -m state --state NEW,ESTABLISHED -j ACCEPT 
+iptables -A FORWARD -p tcp -o eth0 -d 10.5.1.21 --dport 80 -m state --state NEW,ESTABLISHED -j ACCEPT
 
 # Permitir el acceso ssh de int1 a dmz1 y dmz2 para llevar a cabo labores de administración
-iptables -A FORWARD -p tcp -s 10.5.2.20 -i eth2 -o eth0 -d 10.5.1.20 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A FORWARD -p tcp -s 10.5.2.20 -i eth2 -o eth0 -d 10.5.1.20 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+ iptables -A FORWARD -p tcp -s 10.5.2.20 -i eth2 -o eth0 -d 10.5.1.20 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+ iptables -A FORWARD -p tcp -s 10.5.2.20 -i eth2 -o eth0 -d 10.5.1.21 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
 
 # Prevenir un ataque de DoS a la máquina fw limitando el número de conexiones por minuto de tipo ICMP. (T14)
-iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 10/min -j ACCEPT
+iptables -A INPUT -p icmp --icmp-type echo-request -i eth1 -m limit --limit 10/min --limit-burst 5 -j ACCEPT
+iptables -A INPUT -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -p udp -m state --state ESTABLISHED,RELATED -j ACCEPT
+
