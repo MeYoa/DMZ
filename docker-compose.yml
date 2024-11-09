@@ -1,34 +1,38 @@
-version: '2.2'
+version: '1.0'
 services:
-  fw:                           # id del servicio
-    image: practica1/fw         # nombre de la imagen
-    build: ./fw                 # ruta del Dockerfile
-    container_name: fw          # identificador
-    networks:                   # id. de la red/es a las que pertenece el contenedor
+  fw:
+    # id del servicio
+    image: fw # nombre de la imagen
+    build: ./fw # ruta del Dockerfile
+    container_name: fw # identificador
+    networks:
+      # id. de la red/es a las que pertenece el contenedor
       extranet:
-        ipv4_address: 10.5.0.1  
+        ipv4_address: 10.5.0.1
       DMZ:
         ipv4_address: 10.5.1.1
       intranet:
         ipv4_address: 10.5.2.1
-    privileged: true            # permisos extendidos (CUIDADO)
+    privileged: true # permisos extendidos (CUIDADO)
     tty: true
 
-  external:
-    image: /external
-    build: ./external
+  ext1:
+    image: external1
+    build: ./extranet/ext1
     networks:
-      external-network:        # ip dinámica
+      external-network:
+        # ip dinámica
         ipv4_address: 10.5.0.20 # ip estática
     depends_on:
-      - fw                      # Dependencias
+      - fw # Dependencias
     # scale: 3                    # numero de ejemplares, incompatible con container_name
     privileged: true
     tty: true
-  
-  dmz:
-    image: bin/dmz
-    build: ./dmz
+
+  dmz1:
+    image: dmz1
+    build: ./dmz/dmz1
+    container_name: dmz1
     networks:
       DMZ:
         ipv4_address: 10.5.1.20 # ip estática
@@ -38,9 +42,23 @@ services:
     privileged: true
     tty: true
 
-  internal1:
-    image: bin/internal
-    build: ./internal
+  dmz2:
+    image: dmz2
+    build: ./dmz/dmz2
+    container_name: dmz2
+    networks:
+      DMZ:
+        ipv4_address: 10.5.1.21 # ip estática
+    depends_on:
+      - fw
+    # scale: 3
+    privileged: true
+    tty: true
+
+  int1:
+    image: internal1
+    build: ./internal/int
+    container_name: int1
     networks:
       internal-network:
         ipv4_address: 10.5.2.20 # ip estática
@@ -49,9 +67,10 @@ services:
     privileged: true
     tty: true
 
-  internal2:
-    image: bin/internal
-    build: ./internal
+  int2:
+    image: internal2
+    build: ./internal/int
+    container_name: int2
     networks:
       internal-network:
         ipv4_address: 10.5.2.21 # ip estática
@@ -60,24 +79,36 @@ services:
     privileged: true
     tty: true
 
+int3:
+  image: internal3
+  build: ./internal/intvpn
+  container_name: int3
+  networks:
+    internal-network:
+      ipv4_address: 10.5.2.22 # ip estática
+  depends_on:
+    - fw
+  privileged: true
+  tty: true
 networks:
-  extranet:                     # id. de la red
-    driver: bridge              # mode desde el host
+  extranet:
+    # id. de la red
+    driver: bridge # mode desde el host
     ipam:
       config:
-        - subnet: 10.5.0.0/24   # subred
-          gateway: 10.5.0.254   # encaminador
+        - subnet: 10.5.0.0/24 # subred
+          gateway: 10.5.0.254 # encaminador
 
   DMZ:
-    driver: bridge              
+    driver: bridge
     ipam:
       config:
-        - subnet: 10.5.1.0/24   
+        - subnet: 10.5.1.0/24
           gateway: 10.5.1.254
-  
+
   intranet:
-    driver: bridge              
+    driver: bridge
     ipam:
       config:
-        - subnet: 10.5.2.0/24   
+        - subnet: 10.5.2.0/24
           gateway: 10.5.2.254
