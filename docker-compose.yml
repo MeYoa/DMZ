@@ -13,19 +13,18 @@ services:
         ipv4_address: 10.5.1.1
       intranet:
         ipv4_address: 10.5.2.1
-    privileged: true # permisos extendidos (CUIDADO)
+    privileged: true
     tty: true
 
   ext1:
     image: external1
-    build: ./extranet/ext1
+    build: ./extranet
+    container_name: ext1
     networks:
       external-network:
-        # ip dinámica
         ipv4_address: 10.5.0.20 # ip estática
     depends_on:
       - fw # Dependencias
-    # scale: 3                    # numero de ejemplares, incompatible con container_name
     privileged: true
     tty: true
 
@@ -38,7 +37,6 @@ services:
         ipv4_address: 10.5.1.20 # ip estática
     depends_on:
       - fw
-    # scale: 3
     privileged: true
     tty: true
 
@@ -51,13 +49,12 @@ services:
         ipv4_address: 10.5.1.21 # ip estática
     depends_on:
       - fw
-    # scale: 3
     privileged: true
     tty: true
 
   int1:
     image: internal1
-    build: ./internal/int
+    build: ./intranet/int12
     container_name: int1
     networks:
       internal-network:
@@ -69,7 +66,7 @@ services:
 
   int2:
     image: internal2
-    build: ./internal/int
+    build: ./intranet/int12
     container_name: int2
     networks:
       internal-network:
@@ -81,7 +78,7 @@ services:
 
 int3:
   image: internal3
-  build: ./internal/intvpn
+  build: ./intranet/int3
   container_name: int3
   networks:
     internal-network:
@@ -90,14 +87,14 @@ int3:
     - fw
   privileged: true
   tty: true
+
 networks:
   extranet:
-    # id. de la red
-    driver: bridge # mode desde el host
+    driver: bridge
     ipam:
       config:
-        - subnet: 10.5.0.0/24 # subred
-          gateway: 10.5.0.254 # encaminador
+        - subnet: 10.5.0.0/24
+          gateway: 10.5.0.254
 
   DMZ:
     driver: bridge
