@@ -1,4 +1,3 @@
-version: '1.0'
 services:
   fw:
     # id del servicio
@@ -21,7 +20,7 @@ services:
     build: ./extranet
     container_name: ext1
     networks:
-      external-network:
+      extranet:
         ipv4_address: 10.5.0.20 # ip estática
     depends_on:
       - fw # Dependencias
@@ -57,7 +56,7 @@ services:
     build: ./intranet/int12
     container_name: int1
     networks:
-      internal-network:
+      intranet:
         ipv4_address: 10.5.2.20 # ip estática
     depends_on:
       - fw
@@ -69,24 +68,24 @@ services:
     build: ./intranet/int12
     container_name: int2
     networks:
-      internal-network:
+      intranet:
         ipv4_address: 10.5.2.21 # ip estática
     depends_on:
       - fw
     privileged: true
     tty: true
 
-int3:
-  image: internal3
-  build: ./intranet/int3
-  container_name: int3
-  networks:
-    internal-network:
-      ipv4_address: 10.5.2.22 # ip estática
-  depends_on:
-    - fw
-  privileged: true
-  tty: true
+  int3:
+    image: internal3
+    build: ./intranet/int3
+    container_name: int3
+    networks:
+      intranet:
+        ipv4_address: 10.5.2.22 # ip estática
+    depends_on:
+      - fw
+    privileged: true
+    tty: true
 
 networks:
   extranet:
