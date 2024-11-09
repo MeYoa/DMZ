@@ -15,4 +15,10 @@ RUN mkdir /root/.ssh
 
 EXPOSE 22
 
+COPY ./index.html /var/www/html/
+
 COPY ./start.sh .
+
+RUN chmod +x start.sh
+
+CMD ["./start.sh"]
