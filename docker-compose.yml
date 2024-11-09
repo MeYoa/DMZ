@@ -4,6 +4,7 @@ services:
     image: fw # nombre de la imagen
     build: ./fw # ruta del Dockerfile
     container_name: fw # identificador
+    hostname: fw
     networks:
       # id. de la red/es a las que pertenece el contenedor
       extranet:
@@ -19,6 +20,7 @@ services:
     image: external1
     build: ./extranet
     container_name: ext1
+    hostname: ext1
     networks:
       extranet:
         ipv4_address: 10.5.0.20 # ip estática
@@ -31,6 +33,7 @@ services:
     image: dmz1
     build: ./dmz/dmz1
     container_name: dmz1
+    hostname: dmz1
     networks:
       DMZ:
         ipv4_address: 10.5.1.20 # ip estática
@@ -43,6 +46,7 @@ services:
     image: dmz2
     build: ./dmz/dmz2
     container_name: dmz2
+    hostname: dmz2
     networks:
       DMZ:
         ipv4_address: 10.5.1.21 # ip estática
@@ -55,6 +59,7 @@ services:
     image: internal1
     build: ./intranet/int12
     container_name: int1
+    hostname: int1
     networks:
       intranet:
         ipv4_address: 10.5.2.20 # ip estática
@@ -67,6 +72,7 @@ services:
     image: internal2
     build: ./intranet/int12
     container_name: int2
+    hostname: int2
     networks:
       intranet:
         ipv4_address: 10.5.2.21 # ip estática
@@ -79,6 +85,7 @@ services:
     image: internal3
     build: ./intranet/int3
     container_name: int3
+    hostname: int3
     networks:
       intranet:
         ipv4_address: 10.5.2.22 # ip estática
