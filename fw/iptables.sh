@@ -43,11 +43,22 @@ iptables -A FORWARD -p tcp -o eth0 -d 10.5.1.20 --dport 80 -m state --state NEW,
 iptables -A FORWARD -p tcp -o eth0 -d 10.5.1.21 --dport 80 -m state --state NEW,ESTABLISHED -j ACCEPT
 
 # Permitir el acceso ssh de int1 a dmz1 y dmz2 para llevar a cabo labores de administración
- iptables -A FORWARD -p tcp -s 10.5.2.20 -i eth2 -o eth0 -d 10.5.1.20 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
- iptables -A FORWARD -p tcp -s 10.5.2.20 -i eth2 -o eth0 -d 10.5.1.21 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+# iptables -A FORWARD -p tcp -s 10.5.2.20 -i eth2 -o eth0 -d 10.5.1.20 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+# iptables -A FORWARD -p tcp -s 10.5.2.20 -i eth2 -o eth0 -d 10.5.1.21 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+
+# Acceso SSH desde int1 (10.5.2.20) a dmz1 y dmz2 para llevar a cabo labores de administración +  Hardening de OpenSSH Server 
+# (ESTA ES LA MISMA QUE LA DE ARRIBA PERO CON MULTIPORT 22, 2222)
+iptables -A FORWARD -p tcp -i eth2 -s 10.5.2.20 -o eth0 -d 10.5.1.20 -m multiport --dports 22,2222 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -p tcp -i eth2 -s 10.5.2.20 -o eth0 -d 10.5.1.21 -m multiport --dports 22,2222 -m state --state NEW,ESTABLISHED -j ACCEPT
 
 # Prevenir un ataque de DoS a la máquina fw limitando el número de conexiones por minuto de tipo ICMP. (T14)
 iptables -A INPUT -p icmp --icmp-type echo-request -i eth1 -m limit --limit 10/min --limit-burst 5 -j ACCEPT
 iptables -A INPUT -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A INPUT -p udp -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Acceso TCP desde cualquier máquina (interna o externa) a la máquina dmz1 (IP 10.5.1.20) y DMZ2 (IP 10.5.1.21), exclusivamente al servicio HTTPS (puerto 443).
+iptables -A FORWARD -p tcp -o eth0 -d 10.5.1.20 --dport 443 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -p tcp -o eth0 -d 10.5.1.21 --dport 443 -m state --state NEW,ESTABLISHED -j ACCEPT
+
+
 

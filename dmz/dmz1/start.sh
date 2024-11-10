@@ -4,5 +4,8 @@
 # No podemos poner IPs repetidas en el fichero docker-compose.yml
 route add default gw 10.5.1.1
 route del default gw 10.5.1.254
+service rsyslog start
 service apache2 start
+service fail2ban start          # THIS IS NOT WORKING (Need Manual start in the container)
+
 /usr/sbin/sshd -D
