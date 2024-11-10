@@ -4,29 +4,40 @@ _Práctica 1 de la asignatura **Sistemas confiables** del máster universitario 
 
 ## Author: Yoana Pita Lorenzo
 
+## Objetivo de la práctica
+
+Se pretende construir una DMZ (utilizando contenedores Docker para simular las máquinas) siguiendo la topología de red de la Figura 1 y atendiendo los siguientes criterios:
+
+![Arquitectura DMZ](img/EstructDMZ.jpg)
+
+_Figura 1: Estructura de la DMZ_
+
+## Archivos 📦
+
+```
 .
 ├── dmz
 │   ├── dmz1
-│   │   ├── Dockerfile
-│   │   └── start.sh
+│   │   ├── Dockerfile           # Dockerfile para construir la imagen de la DMZ
+│   │   └── start.sh             # Script para iniciar la DMZ    
 │   └── dmz2
-│       ├── Dockerfile
-│       └── start.sh
-├── docker-compose.yml
+│       ├── Dockerfile           # Dockerfile para construir la imagen de la DMZ
+│       └── start.sh             # Script para iniciar la DMZ    
+├── docker-compose.yml           # Archivo de configuración de Docker Compose
 ├── extranet
-│   ├── Dockerfile
-│   └── start.sh
+│   ├── Dockerfile               # Dockerfile para la imágen de la Extranet
+│   └── start.sh                 # Script para iniciar la Extranet
 ├── fw
-│   ├── Dockerfile
-│   ├── iptable.sh
-│   └── start.sh
+│   ├── Dockerfile               # Dockerfile para la imágen del Firewall
+│   ├── iptable.sh               # Script para configurar el Firewall  
+│   └── start.sh                 # Script para iniciar el Firewall
 ├── img
-│   └── Practica_DMZ_1.jpg
+│   └── Practica_DMZ_1.jpg       # Imagen de la topología de red
 ├── intranet
 │   ├── int12
-│   │   ├── Dockerfile
-│   │   └── start.sh
+│   │   ├── Dockerfile           # Dockerfile para la imágen de la Intranet
+│   │   └── start.sh             # Script para iniciar la Intranet
 │   └── int3
-│       ├── Dockerfile
-│       └── start.sh
+│       ├── Dockerfile           # Dockerfile para la imágen de la Intranet con VPN
+│       └── start.sh             # Script para iniciar la Intranet con VPN
 └── README
