@@ -3,8 +3,12 @@ FROM ubuntu:22.04
 
 RUN apt-get update && apt-get -y upgrade && \
     apt-get install -y openssh-server net-tools iputils-ping traceroute vim nano \
-    iproute2 iptables libxtables-dev libip6tc-dev libip4tc-dev pkg-config nmap tcpdump apache2 wget curl libpam-google-authenticator fail2ban rsyslog && \
+    iproute2 iptables libxtables-dev libip6tc-dev libip4tc-dev pkg-config nmap \
+    tcpdump apache2 wget curl libpam-google-authenticator fail2ban rsyslog git gcc \
+    musl-dev python3-dev python3-virtualenv libssl-dev libffi-dev build-essential \
+    libpython3-dev python3-minimal authbind virtualenv && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 
 RUN mkdir /var/run/sshd
 RUN echo 'root:root' |chpasswd
@@ -37,7 +41,20 @@ COPY ./000-default.conf /etc/apache2/sites-available/
 # Solucionar error de apache2: Invalid command 'SSLProxyEngine', perhaps misspelled or defined by a module not included in the server configuration
 RUN a2enmod ssl 
 
-EXPOSE 22
+# Cowrie Honeypot
+RUN useradd -m -d /home/cowrie -s /bin/bash cowrie
+
+RUN su - cowrie && cd /home/cowrie && git clone http://github.com/cowrie/cowrie
+
+ADD ./cowrie.cfg /home/cowrie/cowrie/etc/cowrie.cfg
+ADD ./userdb.txt /home/cowrie/cowrie/etc/userdb.txt
+
+RUN cd /home/cowrie/cowrie && virtualenv --python=python3 cowrie-env && . cowrie-env/bin/activate && pip install --upgrade pip  && pip install --upgrade -r requirements.txt
+
+RUN chown -R cowrie:cowrie /home/cowrie
+
+#RUN su cowrie && /home/cowrie/cowrie/bin/cowrie start       You must not run cowrie as root!
+
 
 COPY ./start.sh .
 

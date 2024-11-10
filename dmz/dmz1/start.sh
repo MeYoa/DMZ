@@ -8,4 +8,7 @@ service rsyslog start
 service apache2 start
 service fail2ban start          # THIS IS NOT WORKING (Need Manual start in the container)
 
+#iptables -t nat -A PREROUTING -p tcp --dport 22 -j REDIRECT --to-port 2222
+#sudo iptables -t nat -A PREROUTING -p tcp --dport 23 -j REDIRECT --to-port 2223
+
 /usr/sbin/sshd -D
